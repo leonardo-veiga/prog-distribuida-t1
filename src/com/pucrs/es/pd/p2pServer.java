@@ -4,15 +4,29 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class p2pServer {
-	public static void main(String[] args) throws IOException {
+public class p2pServer extends Thread {
+
+	protected DatagramSocket socket = null;
+	protected DatagramPacket packet = null;
+	protected InetAddress addr = null;
+	protected byte[] resource = new byte[1024];
+	protected byte[] response = new byte[1024];
+	protected int port;
+
+	public p2pServer(String[] args) throws IOException {
+		port = Integer.parseInt(args[2]) + 1;
+		// cria um socket datagrama
+		socket = new DatagramSocket(port);
+	}
+
+	public void run() {
 		String content = null;
-		InetAddress addr;
-		int port;
-		byte[] resource = new byte[1024];
-		byte[] response = new byte[1024];
-		DatagramSocket socket = new DatagramSocket(9000);
-		DatagramPacket packet;
+//		InetAddress addr;
+//		int port;
+//		byte[] resource = new byte[1024];
+//		byte[] response = new byte[1024];
+//		DatagramSocket socket = new DatagramSocket(9000);
+//		DatagramPacket packet;
 		
 		List<String> resourceList = new ArrayList<>();
 		List<InetAddress> resourceAddr = new ArrayList<>();
