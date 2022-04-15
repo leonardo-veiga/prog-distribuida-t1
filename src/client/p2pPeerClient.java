@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 
+import FileApi.MapFiles;
 import RMI.ResourceInterface;
 
 public class p2pPeerClient extends Thread {
@@ -11,6 +12,14 @@ public class p2pPeerClient extends Thread {
 	protected int server_port;
 	protected String host;
 	protected ResourceInterface testResource;
+	protected static MapFiles mapFiles = new MapFiles();
+
+	public static void main(String[] args) {
+		String[] args2 = { "localhost", "9876", "SERVER" };
+		mapFiles.print();
+		System.out.println("fim");
+	}
+
 
 	public p2pPeerClient(String[] args) throws IOException {
 		server_port = Integer.parseInt(args[2]);
