@@ -1,6 +1,8 @@
 package com.pucrs.es.pd;
 
-import com.pucrs.es.pd.temp.Fatorial;
+// import com.pucrs.es.pd.temp.Fatorial;
+
+import RMI.Resource;
 
 import java.io.IOException;
 import java.rmi.Naming;

@@ -1,4 +1,4 @@
-package com.pucrs.es.pd;
+package RMI;
 
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteServer;

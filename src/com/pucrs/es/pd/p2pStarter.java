@@ -2,12 +2,15 @@ package com.pucrs.es.pd;
 
 import java.io.*;
 
+import client.p2pPeerClient;
+
 public class p2pStarter {
 
 	protected static final String SERVER = "SERVER";
 	protected static final String PEER = "PEER";
 
 	public static void main(String[] args) throws IOException {
+		String[] args2 = { "localhost", "teste", "1234", "SERVER" };
 		if (args.length != 4) {
 			System.out.println("Uso: java p2pStarter <server> \"<message>\" <localport> <mode>");
 			System.out.println("<message> is:");
@@ -19,8 +22,8 @@ public class p2pStarter {
 			if (SERVER.equalsIgnoreCase(args[3])) {
 				new p2pServer(args).start();
 			} else if (PEER.equalsIgnoreCase(args[3])) {
-//				new p2pPeerThread(args).start();
-//				new p2pPeerHeartbeat(args).start();
+				// new p2pPeerThread(args).start();
+				// new p2pPeerHeartbeat(args).start();
 				new p2pPeerClient(args).start();
 			} else {
 				System.out.println("Modo invalido!");
