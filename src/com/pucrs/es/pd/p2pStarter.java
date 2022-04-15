@@ -19,8 +19,8 @@ public class p2pStarter {
 			if (SERVER.equalsIgnoreCase(args[3])) {
 				new p2pServer(args).start();
 			} else if (PEER.equalsIgnoreCase(args[3])) {
-				new p2pPeerThread(args).start();
-				new p2pPeerHeartbeat(args).start();
+//				new p2pPeerThread(args).start();
+//				new p2pPeerHeartbeat(args).start();
 				new p2pPeerClient(args).start();
 			} else {
 				System.out.println("Modo invalido!");
