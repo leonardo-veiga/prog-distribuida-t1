@@ -18,8 +18,8 @@ public class FileStruct {
     public FileStruct(String path, String name) {
         this.setName(name);
         this.setPath(path);
-        this.setMergingPath(path);
-        this.setSplittingPath(path);
+        this.setMergingPath(name);
+        this.setSplittingPath(name);
         try {
             this.setHash();
         } catch (NoSuchAlgorithmException | IOException err) {
@@ -33,7 +33,7 @@ public class FileStruct {
     }
 
     public void setMergingPath(String _name) {
-        this.mergingPath = "src/assets/merging/" + _name;
+        this.mergingPath = "src/FileApi/merging/";
     }
 
     public String getSplittingPath() {
@@ -41,7 +41,7 @@ public class FileStruct {
     }
 
     public void setSplittingPath(String _name) {
-        this.splittingPath = "src/assets/splitting/" + _name;
+        this.splittingPath = "src/FileApi/splitting/";
     }
 
     public String getPath() {
@@ -50,6 +50,9 @@ public class FileStruct {
 
     public void setPath(String path) {
         this.path = path;
+        if (path == null) {
+            this.path = "src/assets/" + this.getName();
+        }
     }
 
     public byte[] getHash() {
@@ -57,6 +60,9 @@ public class FileStruct {
     }
 
     public void setHash() throws NoSuchAlgorithmException, IOException {
+        if (this.path == null) {
+            return;
+        }
         MessageDigest md = MessageDigest.getInstance("MD5");
         try (InputStream is = Files.newInputStream(Paths.get(this.path));
                 DigestInputStream dis = new DigestInputStream(is, md)) {

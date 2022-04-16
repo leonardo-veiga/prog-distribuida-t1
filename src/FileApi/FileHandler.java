@@ -31,7 +31,7 @@ public class FileHandler {
             int bytesAmount = 0;
             while ((bytesAmount = bis.read(buffer)) > 0) {
                 String filePartName = String.format("%s.%03d", fileStruct.getName(), fileNameCounter++);
-                File newFile = new File(file.getParent(), filePartName);
+                File newFile = new File(fileStruct.getSplittingPath() + filePartName);
                 try (FileOutputStream out = new FileOutputStream(newFile)) {
                     out.write(buffer, 0, bytesAmount);
                 }
@@ -48,7 +48,7 @@ public class FileHandler {
             lastReadFile = "0" + lastReadFile;
         }
         System.out.println("arquivo: " + lastReadFile);
-        String composedName = fileStruct.getPath() + "." + lastReadFile;
+        String composedName = fileStruct.getSplittingPath() + fileStruct.getName() + "." + lastReadFile;
         return new File(composedName);
     }
 
@@ -60,7 +60,7 @@ public class FileHandler {
             lastReadFile = "0" + lastReadFile;
         }
         System.out.println("arquivo: " + lastReadFile);
-        String composedName = fileStruct.getPath() + "." + lastReadFile;
+        String composedName = fileStruct.getMergingPath() + fileStruct.getName() + "." + lastReadFile;
         File f = new File(composedName); // Creating the file
         FileOutputStream outToFile = new FileOutputStream(f);
         outToFile.write(fileByteArray);
@@ -69,7 +69,8 @@ public class FileHandler {
 
     public void mergeFiles() throws IOException {
         System.out.println("mergeando arquivos");
-        try (FileOutputStream fos = new FileOutputStream(fileStruct.getPath());
+        String endFile = fileStruct.getPath();
+        try (FileOutputStream fos = new FileOutputStream(endFile);
                 BufferedOutputStream mergingStream = new BufferedOutputStream(fos)) {
             for (File f : listOfFilesToMerge()) {
                 Files.copy(f.toPath(), mergingStream);
@@ -79,7 +80,7 @@ public class FileHandler {
     }
 
     public List<File> listOfFilesToMerge() {
-        String composedName = fileStruct.getPath() + ".001";
+        String composedName = fileStruct.getMergingPath() + fileStruct.getName() + ".001";
         File tmpFile = new File(composedName);
         String tmpName = tmpFile.getName();// {name}.{number}
         String destFileName = tmpName.substring(0, tmpName.lastIndexOf('.'));// remove .{number}

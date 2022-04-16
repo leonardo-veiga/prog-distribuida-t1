@@ -66,9 +66,11 @@ public class Sender {
 
 		// Fluxo de envio de mensagens e confirmacoes de entrega, pedaco a pedaco
 		sendFilePieces();
+		System.err.println("enviou tudo");
 
 		// Finalizando conexao
 		sendFinalMessage();
+		System.out.println("enviou mensagem final");
 		senderSocket.close();
 	}
 
@@ -96,7 +98,7 @@ public class Sender {
 			// Recebe confirmaco
 			boolean status = receiveACK();
 			if (!status) {
-				return;
+				break;
 			}
 		}
 	}
@@ -131,6 +133,9 @@ public class Sender {
 
 	// Confirmacao do cliente de que recebeu corretamente os arquivos
 	private boolean receiveACK() {
+		if (seq >= fileChunks) {
+			return true;
+		}
 		try {
 			senderSocket.receive(receivedPacket);
 			String receivedACK = new String(receivedPacket.getData());

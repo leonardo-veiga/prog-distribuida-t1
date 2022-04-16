@@ -1,3 +1,5 @@
 **/.idea
 *.iml
 /bin/
+src/FileApi/merging/*
+src/FileApi/splitting/*

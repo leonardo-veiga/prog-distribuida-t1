@@ -49,18 +49,15 @@ public class Receiver {
         System.out.println("Recebendo: ");
 
         boolean stop = false;
-        while (stop) {
+        while (!stop) {
             System.out.println("/////////////////////");
             // Recebe N mensagens, de acordo com slow start
             for (int i = 0; i < batchSize; i++) {
-                // Confi��o de parada
-                if (stop) {
-                    break;
-                }
                 // Recebimento de mensagem
                 boolean status = receiveMessage();
                 if (!status) {
-                    return;
+                    stop = true;
+                    break;
                 }
             }
             // Envia uma confirmacao
@@ -89,17 +86,17 @@ public class Receiver {
 
             // Verifica se e uma condicao de parada
             if (message.contains("DONE")) {
-                return true;
+                return false;
             }
 
             // Se nao, e um novo arquivo
             NetPackage np = (NetPackage) serializer.deserialize(buffer);
             fs.saveFile(np.getSeq(), np.getFileArray());
-            return false;
+            return true;
         } catch (Exception e) {
             System.out.println("--------------");
             System.out.println("Ocorreu um erro ao receber a mensagem");
-            return true;
+            return false;
         }
     }
 
@@ -107,8 +104,8 @@ public class Receiver {
     // Confirma que recebeu os arquivos
     private void sendMessage() {
         byte[] sendData = new byte[1024];
-        System.out.println("enviando ACK:" + (100 + 500));
-        String newACK = Integer.toString(100 + 500);
+        System.out.println("enviando ACK:" + (100 + batchSize));
+        String newACK = Integer.toString(100 + batchSize);
         sendData = newACK.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, senderPort);
         try {
