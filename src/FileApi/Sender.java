@@ -7,162 +7,46 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-
-import FileApi.Manipulation.FileSplitter;
 import FileApi.Socket.NetPackage;
 import FileApi.Socket.Serializer;
 
 public class Sender {
-	// Nome do arquivo a ser lido.
-	// OBS: O arquivo deve estar na mesma pasta /files
-	static String fileName = "enunciado.pdf";
-	// Configs do socket
-	static int timeoutSeconds = 4;
-	static int receiverPort = 9876;
-	static int senderPort = 9878;
-	static DatagramSocket senderSocket;
-	static DatagramPacket receivedPacket;
-	static InetAddress IPAddress;
-	// Mensagens a serem lida em uma itera��o
-	static ArrayList<NetPackage> messages;
+	// REVER
+	private int receiverPort = 9876;
+	private int senderPort = 9878;
+	private DatagramSocket senderSocket;
+	private DatagramPacket receivedPacket;
+	private InetAddress IPAddress;
+	// ---------------
+
+	// Tempo de timeout (segundos)
+	private int timeoutSeconds = 20;
+	// Estrutura do arquivo
+	private FileStruct fileStruct;
 	// Manipulador de arquivos
-	static FileSplitter fs;
-	static int fileChunks = 0;
-	static Serializer ser = new Serializer();
-	// Slow start
-	static int SlowStart = 1;
-	// Qual o ultimo arquivo enviado
-	static int seq = 0;
-	// ACK
-	static int ACK = 100;
+	private FileHandler fs;
+	// Quantidade de pedaços para serem enviados antes de confirmação
+	private int batchSize = 5;
+	// N pedaços do arquivo
+	private int fileChunks = 0;
+	// Pedaço atual sendo enviado
+	private int seq = 0;
+	// Serializador de arquivos
+	private Serializer serializer = new Serializer();
 
-	public static void main(String[] args) {
-		System.out.println("Iniciando...");
-		// -------------------------- //
-		System.out.print("Quebrando o arquivo ");
-		System.out.print(fileName);
-		System.out.print(" em peda�os");
-		System.out.println("");
-		fs = new FileSplitter(fileName);
-		try {
-			fileChunks = fs.split() - 1;
-			System.out.println("Arquivo quebrado em " + fileChunks + " com sucesso");
-		} catch (IOException e) {
-			System.out.println("Ocorreu um erro ao manipular o arquivo");
-		}
-		// -------------------------- //
-		System.out.println("Realizando configura��es");
+	public Sender() {
+		System.out.println("Realizando configuracoes");
 		// Configura socket para o sender
-		setSenderSocket();
+		try {
+			senderSocket = new DatagramSocket(senderPort);
+			senderSocket.setSoTimeout(timeoutSeconds * 1000);
+		} catch (SocketException e) {
+			System.out.println("Erro! porta ja em uso");
+		}
 		// Declara o pacote a ser recebido
-		declarePackage();
+		byte[] receiveData = new byte[1024];
+		receivedPacket = new DatagramPacket(receiveData, receiveData.length);
 		// Seta ip do receiver
-		setIp();
-		System.out.println("Pronto para enviar");
-		// -------------------------- //
-
-		// Fluxo de envio de mensagens e confirma��es de entrega
-		boolean okToContinue = true;
-		while (seq < fileChunks) {
-			okToContinue = true;
-			System.out.println("/////////////////////");
-			System.out.println("seq: " + seq);
-			System.out.println("SlowStart: " + SlowStart);
-			System.out.println("ACK: " + ACK);
-			// Define o array de mensagens a enviar
-			getMessage();
-			// Envia as mensagens, N vezes, de acordo com slow start
-			for (int i = 0; i < SlowStart; i++) {
-				sendMessage(i);
-			}
-			// Recebe uma confirma��o
-			okToContinue = receiveACK();
-
-			if (okToContinue && SlowStart < 10) {
-				SlowStart = SlowStart * 2;
-			}
-		}
-		sendFinalMessage();
-		senderSocket.close();
-		try {
-			fs.printMD5();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	// Recebimento de ACK
-	// Confirma��o do cliente de que recebeu corretamente os arquivos
-	private static boolean receiveACK() {
-		try {
-			senderSocket.receive(receivedPacket);
-			String receivedACK = new String(receivedPacket.getData());
-			receivedACK = receivedACK.replaceAll("[^\\d.]", "");
-			int newACK = Integer.parseInt(receivedACK);
-			System.out.println("ACK recebida: " + newACK);
-			if (newACK != (100 + SlowStart)) {
-				System.out.println("--------------");
-				System.out.println("ACK diferente do esperado:");
-				System.out.println("esperava: " + (100 + SlowStart));
-				throw new Exception();
-			}
-			ACK = newACK;
-			return true;
-		} catch (Exception e) {
-			System.out.println("--------------");
-			System.out.println("Erro ao receber ACK");
-			recoverFromError();
-			return false;
-		}
-	}
-
-	// Logica de recupera��o em caso de erro
-	private static void recoverFromError() {
-		System.out.println("seq:" + seq);
-		System.out.println("SlowStart: " + SlowStart);
-		System.out.println("ACK: " + ACK);
-		seq = seq - SlowStart;
-		SlowStart = 1;
-		ACK = 101;
-		System.out.println("--------------");
-	}
-
-	// Envio de mensagens
-	// Envia N peda�os do arquivo, de acordo com slow start
-	private static void sendMessage(int index) {
-		try {
-			if (index < messages.size()) {
-				byte[] sendData = ser.serialize(messages.get(index));
-				DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, receiverPort);
-				senderSocket.send(sendPacket);
-			}
-
-		} catch (
-
-		IOException e1) {
-			System.out.println("Ocorreu um erro ao enviar a mensagem");
-			e1.printStackTrace();
-		}
-	}
-
-	// Logica de obten��o dos peda�os do arquivo a serem enviados
-	private static void getMessage() {
-		messages = new ArrayList<NetPackage>();
-		for (int i = 0; i < SlowStart; i++) {
-			seq++;
-			if (seq > fileChunks) {
-				break;
-			}
-			NetPackage np = new NetPackage();
-			np.createObj(ACK, seq, fs.getFile(seq));
-			messages.add(np);
-		}
-
-	}
-
-	// Config de IP
-	private static void setIp() {
 		try {
 			IPAddress = InetAddress.getByName("localhost");
 			System.out.println("Conectado ao receiver com sucesso");
@@ -172,24 +56,96 @@ public class Sender {
 		}
 	}
 
-	// Config de pacote
-	private static void declarePackage() {
-		byte[] receiveData = new byte[1024];
-		receivedPacket = new DatagramPacket(receiveData, receiveData.length);
+	public void sendFile(FileStruct _fileStruct) {
+		fileStruct = _fileStruct;
+		System.out.println("Iniciando processo de envio de arquivo " + fileStruct.getName() + "...");
+		System.out.print("Quebrando o arquivo");
+
+		// Quebra o arquivo em pedaços
+		breakFile();
+
+		// Fluxo de envio de mensagens e confirmacoes de entrega, pedaco a pedaco
+		sendFilePieces();
+
+		// Finalizando conexao
+		sendFinalMessage();
+		senderSocket.close();
 	}
 
-	// Config do socket
-	private static void setSenderSocket() {
+	// Quebra o arquivo a ser enviado em pedaços para transferencia UDP
+	private void breakFile() {
+		fs = new FileHandler(fileStruct);
 		try {
-			senderSocket = new DatagramSocket(senderPort);
-			senderSocket.setSoTimeout(timeoutSeconds * 1000);
-		} catch (SocketException e) {
-			System.out.println("Erro! porta ja em uso");
+			fileChunks = fs.split() - 1;
+			System.out.println("Arquivo quebrado em " + fileChunks + " com sucesso");
+		} catch (IOException e) {
+			System.out.println("Ocorreu um erro ao manipular o arquivo");
 		}
 	}
 
-	// Envio da mensagem de condi��o de parada
-	private static void sendFinalMessage() {
+	// Envio dos pedacos do arquivo
+	private void sendFilePieces() {
+		while (seq < fileChunks) {
+			System.out.println("/////////////////////");
+			System.out.println("Enviando: ");
+			// Define o array de mensagens a enviar
+			ArrayList<NetPackage> messages = getMessage();
+			for (NetPackage netPackage : messages) {
+				sendMessage(netPackage);
+			}
+			// Recebe confirmaco
+			boolean status = receiveACK();
+			if (!status) {
+				return;
+			}
+		}
+	}
+
+	// Logica de obtencao dos pedacos do arquivo a serem enviados
+	private ArrayList<NetPackage> getMessage() {
+		ArrayList<NetPackage> messages = new ArrayList<NetPackage>();
+		for (int i = 0; i < batchSize; i++) {
+			seq++;
+			if (seq > fileChunks) {
+				break;
+			}
+			NetPackage np = new NetPackage();
+			np.createObj(seq, fs.getFile(seq));
+			messages.add(np);
+		}
+		return messages;
+	}
+
+	// Envio de mensagens
+	private void sendMessage(NetPackage netPackage) {
+		try {
+			byte[] sendData = serializer.serialize(netPackage);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, receiverPort);
+			senderSocket.send(sendPacket);
+
+		} catch (IOException e1) {
+			System.out.println("Ocorreu um erro ao enviar a mensagem");
+			e1.printStackTrace();
+		}
+	}
+
+	// Confirmacao do cliente de que recebeu corretamente os arquivos
+	private boolean receiveACK() {
+		try {
+			senderSocket.receive(receivedPacket);
+			String receivedACK = new String(receivedPacket.getData());
+			receivedACK = receivedACK.replaceAll("[^\\d.]", "");
+			int testACK = Integer.parseInt(receivedACK);
+			System.out.println("ACK recebido: " + testACK);
+			return true;
+		} catch (Exception e) {
+			System.out.println("Timeout!!!!!!!!!!! Encerrando conexao");
+			return false;
+		}
+	}
+
+	// Envio da mensagem de condico de parada
+	private void sendFinalMessage() {
 		byte[] sendData = new byte[1024];
 		String message = "DONE";
 		sendData = message.getBytes();

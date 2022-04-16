@@ -3,8 +3,11 @@ package client;
 import java.io.IOException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
+import java.util.ArrayList;
 
+import FileApi.FileStruct;
 import FileApi.MapFiles;
+import FileApi.Sender;
 import RMI.ResourceInterface;
 
 public class p2pPeerClient extends Thread {
@@ -13,13 +16,15 @@ public class p2pPeerClient extends Thread {
 	protected String host;
 	protected ResourceInterface testResource;
 	protected static MapFiles mapFiles = new MapFiles();
+	protected static Sender fileSender = new Sender();
 
 	public static void main(String[] args) {
 		String[] args2 = { "localhost", "9876", "SERVER" };
-		mapFiles.print();
+		ArrayList<FileStruct> files = mapFiles.searchFiles("enun");
+		mapFiles.print(files);
 		System.out.println("fim");
+		fileSender.sendFile(files.get(0));
 	}
-
 
 	public p2pPeerClient(String[] args) throws IOException {
 		server_port = Integer.parseInt(args[2]);
