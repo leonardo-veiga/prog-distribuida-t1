@@ -1,4 +1,4 @@
-package FileApi.Socket;
+package fileApi.Socket;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

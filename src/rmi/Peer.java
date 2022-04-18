@@ -1,11 +1,10 @@
-package com.pucrs.es.pd;
+package rmi;
 
-import FileApi.FileStruct;
+import fileApi.FileStruct;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class Peer implements Serializable {
 

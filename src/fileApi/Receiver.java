@@ -1,12 +1,12 @@
-package FileApi;
+package fileApi;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import FileApi.Socket.NetPackage;
-import FileApi.Socket.Serializer;
+import fileApi.Socket.NetPackage;
+import fileApi.Socket.Serializer;
 
 public class Receiver {
     // REVER

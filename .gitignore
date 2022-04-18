@@ -3,5 +3,5 @@
 *.classpath
 *.project
 /bin/
-src/FileApi/merging/*
-src/FileApi/splitting/*
+src/fileApi/merging/*
+src/fileApi/splitting/*

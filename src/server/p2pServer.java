@@ -1,8 +1,7 @@
-package com.pucrs.es.pd;
+package server;
 
-// import com.pucrs.es.pd.temp.Fatorial;
-
-import RMI.Resource;
+import rmi.Peer;
+import rmi.Resource;
 
 import java.io.IOException;
 import java.rmi.Naming;
@@ -14,14 +13,14 @@ import java.util.concurrent.TimeUnit;
 
 public class p2pServer extends Thread {
 
-	protected int port;
 	protected String host;
+	protected int port;
 
 	private List<Peer> peers;
 
 	public p2pServer(String[] args) throws IOException {
-		port = Integer.parseInt(args[2]);
 		host = args[0];
+		port = Integer.parseInt(args[1]);
 		this.peers = new ArrayList<>();
 	}
 
@@ -49,11 +48,10 @@ public class p2pServer extends Thread {
 		// Looping de controle de recursos
 		while(true) {
 			if(this.cycleCheck(lastRun)) {
-				System.out.println("passou 10 segundos!");
+//				System.out.println("passou 10 segundos!");
+				System.out.println("Peers: " + this.listPeers());
 				lastRun = System.nanoTime();
-				System.out.println(listPeers());
 				killDeadPeers();
-				System.out.println(listPeers());
 			}
 
 		}
@@ -73,6 +71,7 @@ public class p2pServer extends Thread {
 			for (Peer p : this.peers) {
 				if (p.isPeerDead()) {
 					peersToRemove.add(p);
+					System.out.println("Matando o Peer '" + p.toString() + "' ( う-´)づ︻╦̵̿╤── \\(˚☐˚”)/ !");
 				}
 			}
 			this.peers.removeAll(peersToRemove);

@@ -1,4 +1,4 @@
-package FileApi;
+package fileApi;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +37,7 @@ public class FileStruct implements Serializable {
     }
 
     public void setMergingPath(String _name) {
-        this.mergingPath = "src/FileApi/merging/";
+        this.mergingPath = "src/fileApi/merging/";
     }
 
     public String getSplittingPath() {
@@ -45,7 +45,7 @@ public class FileStruct implements Serializable {
     }
 
     public void setSplittingPath(String _name) {
-        this.splittingPath = "src/FileApi/splitting/";
+        this.splittingPath = "src/fileApi/splitting/";
     }
 
     public String getPath() {

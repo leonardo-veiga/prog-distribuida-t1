@@ -1,15 +1,10 @@
-package RMI;
+package rmi;
 
-import FileApi.FileStruct;
-import com.pucrs.es.pd.Peer;
+import fileApi.FileStruct;
 
 import java.rmi.RemoteException;
-import java.rmi.server.RemoteServer;
-import java.rmi.server.ServerNotActiveException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class Resource extends UnicastRemoteObject implements ResourceInterface {
 
@@ -30,7 +25,7 @@ public class Resource extends UnicastRemoteObject implements ResourceInterface {
 		return this.peers;
 	}
 
-	public String keepAline(String host, int port) throws RemoteException {
+	public String keepAlive(String host, int port) throws RemoteException {
 		Peer peer = findPeer(host, port);
 		if (peer != null) {
 			peer.setLastPing(System.nanoTime());
@@ -38,6 +33,17 @@ public class Resource extends UnicastRemoteObject implements ResourceInterface {
 		} else {
 			return "Peer não encontrado!";
 		}
+	}
+
+	public Peer findPeerByFileName(String fileName) throws RemoteException {
+		for (Peer p : this.peers) {
+			for (FileStruct fs : p.getFiles()) {
+				if(fileName.toUpperCase().contains(fs.getName().toUpperCase())) {
+					return p;
+				}
+			}
+		}
+		return null;
 	}
 
 	private Peer findPeer(String host, int port) {

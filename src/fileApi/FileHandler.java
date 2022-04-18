@@ -1,4 +1,4 @@
-package FileApi;
+package fileApi;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

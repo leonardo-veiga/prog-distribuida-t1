@@ -1,4 +1,4 @@
-package FileApi;
+package fileApi;
 
 import java.io.File;
 import java.util.ArrayList;

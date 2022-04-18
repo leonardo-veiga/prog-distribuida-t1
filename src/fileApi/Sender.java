@@ -1,4 +1,4 @@
-package FileApi;
+package fileApi;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import FileApi.Socket.NetPackage;
-import FileApi.Socket.Serializer;
+import fileApi.Socket.NetPackage;
+import fileApi.Socket.Serializer;
 
 public class Sender {
 	// REVER
