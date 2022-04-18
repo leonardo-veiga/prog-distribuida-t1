@@ -2,13 +2,17 @@ package FileApi;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class FileStruct {
+public class FileStruct implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private String name;
     private byte[] hash;
     private String path;
