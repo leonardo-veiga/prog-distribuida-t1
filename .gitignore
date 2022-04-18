@@ -1,5 +1,7 @@
 **/.idea
 *.iml
+*.classpath
+*.project
 /bin/
 src/FileApi/merging/*
 src/FileApi/splitting/*
