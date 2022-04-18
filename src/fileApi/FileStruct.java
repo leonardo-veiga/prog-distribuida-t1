@@ -25,7 +25,7 @@ public class FileStruct implements Serializable {
         this.setMergingPath(name);
         this.setSplittingPath(name);
         try {
-            this.setHash();
+            this.setHash(path);
         } catch (NoSuchAlgorithmException | IOException err) {
             System.err.println("Ocorreu um erro ao gerar o hash do arquivo: " + name);
             System.err.println("Erro: " + err);
@@ -63,8 +63,8 @@ public class FileStruct implements Serializable {
         return hash;
     }
 
-    public void setHash() throws NoSuchAlgorithmException, IOException {
-        if (this.path == null) {
+    public void setHash(String path) throws NoSuchAlgorithmException, IOException {
+        if (path == null) {
             return;
         }
         MessageDigest md = MessageDigest.getInstance("MD5");

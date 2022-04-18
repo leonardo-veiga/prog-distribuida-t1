@@ -66,9 +66,11 @@ public class p2pPeerClient extends Thread {
 			if(this.cycleCheck(lastRun)) {
 //				System.out.println("passou 10 segundos!");
 				lastRun = System.nanoTime();
+				System.out.println("--------------------------------");
 				this.acceptedCommands("ALIVE");
 
 				this.acceptedCommands("CHECK");
+				System.out.println("--------------------------------");
 
 				if(!this.noMoreUserCommands) {
 					String userInput = this.getUserInput();
@@ -151,6 +153,10 @@ public class p2pPeerClient extends Thread {
 					} else {
 						System.out.println("Não tem pedidos de arquivos!");
 					}
+					break;
+				case "IGNORE":
+					this.noMoreUserCommands = true;
+					break;
 				default:
 					System.out.println("Não faz nada!");
 					break;
