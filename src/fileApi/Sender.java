@@ -12,8 +12,8 @@ import fileApi.Socket.Serializer;
 
 public class Sender {
 	// REVER
-	private int receiverPort = 9876;
-	private int senderPort = 9878;
+	private int receiverPort; // = 9876;
+	private int senderPort; // = 9878;
 	private DatagramSocket senderSocket;
 	private DatagramPacket receivedPacket;
 	private InetAddress IPAddress;
@@ -34,21 +34,27 @@ public class Sender {
 	// Serializador de arquivos
 	private Serializer serializer = new Serializer();
 
-	public Sender() {
+	public Sender(String receiverHost, int receiverPort, int senderPort) {
 		System.out.println("Realizando configuracoes");
+
+		this.receiverPort = receiverPort;
+		this.senderPort = senderPort;
+
 		// Configura socket para o sender
 		try {
-			senderSocket = new DatagramSocket(senderPort);
+			senderSocket = new DatagramSocket(this.senderPort);
 			senderSocket.setSoTimeout(timeoutSeconds * 1000);
 		} catch (SocketException e) {
 			System.out.println("Erro! porta ja em uso");
 		}
+
 		// Declara o pacote a ser recebido
 		byte[] receiveData = new byte[1024];
 		receivedPacket = new DatagramPacket(receiveData, receiveData.length);
+
 		// Seta ip do receiver
 		try {
-			IPAddress = InetAddress.getByName("localhost");
+			IPAddress = InetAddress.getByName(receiverHost);
 			System.out.println("Conectado ao receiver com sucesso");
 		} catch (UnknownHostException e) {
 			System.out.println("erro durante obtencao do ip do receiver");
@@ -122,7 +128,7 @@ public class Sender {
 	private void sendMessage(NetPackage netPackage) {
 		try {
 			byte[] sendData = serializer.serialize(netPackage);
-			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, receiverPort);
+			DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, this.IPAddress, this.receiverPort);
 			senderSocket.send(sendPacket);
 
 		} catch (IOException e1) {
@@ -154,7 +160,7 @@ public class Sender {
 		byte[] sendData = new byte[1024];
 		String message = "DONE";
 		sendData = message.getBytes();
-		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, receiverPort);
+		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, this.IPAddress, this.receiverPort);
 		try {
 			senderSocket.send(sendPacket);
 		} catch (IOException e) {

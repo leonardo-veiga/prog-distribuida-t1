@@ -14,6 +14,7 @@ public class Peer implements Serializable {
     private int port;
     private long lastPing;
     private List<FileStruct> files;
+    private FileRequest fileRequest;
 
     public Peer(String host, int port, List<FileStruct> files) {
         this.host = host;
@@ -52,6 +53,14 @@ public class Peer implements Serializable {
 
     public void setFiles(List<FileStruct> files) {
         this.files = files;
+    }
+
+    public FileRequest getFileRequest() {
+        return fileRequest;
+    }
+
+    public void setFileRequest(FileRequest fileRequest) {
+        this.fileRequest = fileRequest;
     }
 
     public boolean isPeerDead() {

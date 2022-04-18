@@ -29,7 +29,7 @@ public class Resource extends UnicastRemoteObject implements ResourceInterface {
 		Peer peer = findPeer(host, port);
 		if (peer != null) {
 			peer.setLastPing(System.nanoTime());
-			return "Peer kept alive!";
+			return "Peer continua vivo!";
 		} else {
 			return "Peer não encontrado!";
 		}
@@ -38,12 +38,29 @@ public class Resource extends UnicastRemoteObject implements ResourceInterface {
 	public Peer findPeerByFileName(String fileName) throws RemoteException {
 		for (Peer p : this.peers) {
 			for (FileStruct fs : p.getFiles()) {
-				if(fileName.toUpperCase().contains(fs.getName().toUpperCase())) {
+				if(fs.getName().toUpperCase().contains(fileName.toUpperCase())) {
 					return p;
 				}
 			}
 		}
 		return null;
+	}
+
+	public String askForFile(String receiverHost, int receiverPort, String senderHost, int senderPort, String file) throws RemoteException {
+		FileRequest fileRequest = new FileRequest(receiverHost, receiverPort, file);
+
+		Peer sender = findPeer(senderHost, senderPort);
+		if (sender != null) {
+			sender.setFileRequest(fileRequest);
+			return "Requisito de arquivo criado";
+		} else {
+			return "Peer não encontrado";
+		}
+	}
+
+	public FileRequest checkForFileRequests(String host, int port) throws RemoteException {
+		Peer peer = findPeer(host, port);
+		return peer.getFileRequest();
 	}
 
 	private Peer findPeer(String host, int port) {
@@ -54,15 +71,6 @@ public class Resource extends UnicastRemoteObject implements ResourceInterface {
 		}
 		return null;
 	}
-
-//	public int testResource(String testValue) throws RemoteException {
-//		try {
-//			System.out.println(RemoteServer.getClientHost() + "Chamou o backend!");
-//		} catch (ServerNotActiveException e) {
-//			e.printStackTrace();
-//		}
-//		return testValue.hashCode();
-//	}
 
 }
 
